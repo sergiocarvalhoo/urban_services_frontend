@@ -5,7 +5,7 @@ export default function LandingPage() {
   return (
     <Box
       sx={{
-        maxWidth: 600,
+        maxWidth: 1200,
         mx: "auto",
         mt: 10,
         textAlign: "center",
@@ -15,10 +15,10 @@ export default function LandingPage() {
         bgcolor: "background.paper",
       }}
     >
-      <Typography variant="h3" gutterBottom>
-        Bem-vindo ao Urban Services
+      <Typography variant="h4" gutterBottom>
+        Bem-vindo ao Sistema de Solicitações Urbanas
       </Typography>
-      <Typography variant="h6" paragraph>
+      <Typography variant="h6" gutterBottom>
         Plataforma para cadastro e gerenciamento de solicitações de serviços
         urbanos, como troca de lâmpadas em postes e reparo de vias públicas.
       </Typography>

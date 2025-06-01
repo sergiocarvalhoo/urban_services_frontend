@@ -1,20 +1,23 @@
-// src/components/ServiceRequestList.tsx
 import {
   Box,
-  Typography,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
   Card,
   CardContent,
   Chip,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
+  Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import {
+  requestStatusLabels,
+  serviceTypeLabels,
+} from "../constants/serviceRequestLabels";
 import { api } from "../services/api";
-import { ServiceType } from "../types/service-request";
 import type { ServiceRequest } from "../types/service-request";
+import { ServiceType } from "../types/service-request";
 
 export function ServiceRequestList() {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
@@ -51,7 +54,7 @@ export function ServiceRequestList() {
           <MenuItem value="">Todos</MenuItem>
           {Object.values(ServiceType).map((type) => (
             <MenuItem key={type} value={type}>
-              {type.replace("_", " ")}
+              {serviceTypeLabels[type] || type.replace("_", " ")}
             </MenuItem>
           ))}
         </Select>
@@ -61,7 +64,9 @@ export function ServiceRequestList() {
         {requests.map((req) => (
           <Card key={req.id}>
             <CardContent>
-              <Typography variant="h6">{req.type.replace("_", " ")}</Typography>
+              <Typography variant="h6">
+                {serviceTypeLabels[req.type] || req.type.replace("_", " ")}
+              </Typography>
               <Typography variant="body2" color="text.secondary">
                 {req.description}
               </Typography>
@@ -71,7 +76,7 @@ export function ServiceRequestList() {
               <Typography variant="body2">Endereço: {req.address}</Typography>
               <Typography variant="body2">Documento: {req.document}</Typography>
               <Chip
-                label={req.status}
+                label={requestStatusLabels[req.status] || req.status}
                 sx={{ mt: 1 }}
                 color={getStatusColor(req.status)}
               />
