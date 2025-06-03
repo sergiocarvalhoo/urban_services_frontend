@@ -1,10 +1,11 @@
-// src/components/ServiceRequestForm.tsx
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Alert,
   Box,
   Button,
   FormControl,
+  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
@@ -14,12 +15,13 @@ import {
   Typography,
 } from "@mui/material";
 import { cnpj, cpf } from "cpf-cnpj-validator";
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { serviceTypeLabels } from "../constants/serviceRequestLabels";
+import { DocumentInput } from "./DocumentInput";
 import { api } from "../services/api";
 import { RequestStatus, ServiceType } from "../types/service-request";
+import { serviceTypeLabels } from "../constants/serviceRequestLabels";
+import { useNavigate } from "react-router-dom";
 
 const schema = z.object({
   type: z.nativeEnum(ServiceType, {
@@ -28,24 +30,21 @@ const schema = z.object({
   address: z.string().min(1, "Endereço é obrigatório."),
   description: z.string().min(1, "Descrição é obrigatória."),
   requesterName: z.string().min(1, "Nome do solicitante é obrigatório."),
-  document: z
-    .string()
-    .refine((val) => cpf.isValid(val) || cnpj.isValid(val), {
-      message: "CPF ou CNPJ inválido.",
-    }),
+  document: z.string().min(1, "Documento é obrigatório"),
 });
 
-type FormData = z.infer<typeof schema>;
-
 export function ServiceRequestForm() {
+  const navigate = useNavigate();
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [documentType, setDocumentType] = useState<"cpf" | "cnpj">("cpf");
+
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>({
+  } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       type: undefined,
@@ -56,17 +55,36 @@ export function ServiceRequestForm() {
     },
   });
 
-  const onSubmit = async (data: FormData) => {
-    setError(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSubmit = async (data: any) => {
     try {
+      const numericDocument = data.document.replace(/\D/g, "");
+      const isValid =
+        documentType === "cpf"
+          ? cpf.isValid(numericDocument)
+          : cnpj.isValid(numericDocument);
+
+      if (!isValid) {
+        setError(`${documentType.toUpperCase()} inválido`);
+        return;
+      }
+
       await api.post("/service-requests", {
         ...data,
+        document: numericDocument,
         status: RequestStatus.PENDING,
       });
+
       setSuccess("Solicitação criada com sucesso!");
       reset();
-    } catch {
-      setError("Erro ao criar solicitação.");
+      setDocumentType("cpf");
+
+      setTimeout(() => {
+        navigate("/list");
+      }, 2000);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      setError("Erro ao criar solicitação. Tente novamente.");
     }
   };
 
@@ -156,18 +174,33 @@ export function ServiceRequestForm() {
             name="document"
             control={control}
             render={({ field }) => (
-              <TextField
-                {...field}
-                label="CPF ou CNPJ"
-                fullWidth
-                required
-                error={!!errors.document}
-                helperText={errors.document?.message}
-              />
+              <FormControl fullWidth error={!!errors.document}>
+                <DocumentInput
+                  {...field}
+                  error={!!errors.document}
+                  documentType={documentType}
+                  onTypeChange={(type: "cpf" | "cnpj") => {
+                    setDocumentType(type);
+                    field.onChange("");
+                  }}
+                />
+                {errors.document && (
+                  <FormHelperText>{errors.document.message}</FormHelperText>
+                )}
+              </FormControl>
             )}
           />
 
-          <Button variant="contained" type="submit" disabled={isSubmitting}>
+          <Button
+            variant="contained"
+            type="submit"
+            disabled={isSubmitting}
+            sx={{
+              mt: 2,
+              py: 1.5,
+              fontSize: "1.1rem",
+            }}
+          >
             {isSubmitting ? "Enviando..." : "Enviar Solicitação"}
           </Button>
         </Stack>
