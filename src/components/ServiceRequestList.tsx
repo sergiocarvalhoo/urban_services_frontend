@@ -1,12 +1,17 @@
+import EditIcon from "@mui/icons-material/Edit";
 import {
+  Alert,
   Box,
   Card,
   CardContent,
   Chip,
   FormControl,
+  IconButton,
   InputLabel,
+  Menu,
   MenuItem,
   Select,
+  Snackbar,
   Stack,
   Typography,
 } from "@mui/material";
@@ -15,13 +20,19 @@ import {
   requestStatusLabels,
   serviceTypeLabels,
 } from "../constants/serviceRequestLabels";
+import { useAuth } from "../contexts/AuthContext";
 import { api } from "../services/api";
-import type { ServiceRequest } from "../types/service-request";
-import { ServiceType } from "../types/service-request";
+import { RequestStatus, ServiceType, type ServiceRequest } from "../types/service-request";
 
 export function ServiceRequestList() {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [filter, setFilter] = useState<ServiceType | "">("");
+  const { isAuthenticated } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(
+    null
+  );
+  const [statusMenu, setStatusMenu] = useState<null | HTMLElement>(null);
 
   const fetchRequests = async () => {
     try {
@@ -36,7 +47,25 @@ export function ServiceRequestList() {
 
   useEffect(() => {
     fetchRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
+
+  const handleStatusUpdate = async (newStatus: RequestStatus) => {
+    if (!selectedRequest) return;
+
+    try {
+      await api.patch(`/service-requests/${selectedRequest.id}/status`, {
+        status: newStatus,
+      });
+
+      await fetchRequests();
+      setStatusMenu(null);
+      setSelectedRequest(null);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      setError("Erro ao atualizar status");
+    }
+  };
 
   return (
     <Box sx={{ maxWidth: 800, mx: "auto", mt: 4 }}>
@@ -44,46 +73,109 @@ export function ServiceRequestList() {
         Solicitações de Serviços
       </Typography>
 
-      <FormControl fullWidth sx={{ mb: 3 }}>
-        <InputLabel>Filtrar por Tipo</InputLabel>
-        <Select
-          value={filter}
-          label="Filtrar por Tipo"
-          onChange={(e) => setFilter(e.target.value as ServiceType | "")}
-        >
-          <MenuItem value="">Todos</MenuItem>
-          {Object.values(ServiceType).map((type) => (
-            <MenuItem key={type} value={type}>
-              {serviceTypeLabels[type] || type.replace("_", " ")}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <FormControl sx={{ width: 300 }}>
+          <InputLabel>Filtrar por Tipo</InputLabel>
+          <Select
+            value={filter}
+            label="Filtrar por Tipo"
+            onChange={(e) => setFilter(e.target.value as ServiceType | "")}
+          >
+            <MenuItem value="">Todos</MenuItem>
+            {Object.values(ServiceType).map((type) => (
+              <MenuItem key={type} value={type}>
+                {serviceTypeLabels[type] || type.replace("_", " ")}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
 
       <Stack spacing={2}>
         {requests.map((req) => (
           <Card key={req.id}>
-            <CardContent>
-              <Typography variant="h6">
-                {serviceTypeLabels[req.type] || req.type.replace("_", " ")}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {req.description}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                Solicitante: {req.requesterName}
-              </Typography>
-              <Typography variant="body2">Endereço: {req.address}</Typography>
-              <Typography variant="body2">Documento: {req.document}</Typography>
-              <Chip
-                label={requestStatusLabels[req.status] || req.status}
-                sx={{ mt: 1 }}
-                color={getStatusColor(req.status)}
-              />
+            <CardContent
+              sx={{ display: "flex", justifyContent: "space-between" }}
+            >
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6">
+                  {serviceTypeLabels[req.type] || req.type.replace("_", " ")}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {req.description}
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  Solicitante: {req.requesterName}
+                </Typography>
+                <Typography variant="body2">Endereço: {req.address}</Typography>
+                <Typography variant="body2">
+                  Documento: {req.document}
+                </Typography>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}
+                >
+                  <Chip
+                    label={requestStatusLabels[req.status]}
+                    color={getStatusColor(req.status)}
+                  />
+                  {isAuthenticated && (
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        setSelectedRequest(req);
+                        setStatusMenu(e.currentTarget);
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  )}
+                </Box>
+              </Box>
             </CardContent>
           </Card>
         ))}
       </Stack>
+
+      <Menu
+        anchorEl={statusMenu}
+        open={Boolean(statusMenu)}
+        onClose={() => {
+          setStatusMenu(null);
+          setSelectedRequest(null);
+        }}
+      >
+        {Object.values(RequestStatus).map((status) => (
+          <MenuItem
+            key={status}
+            onClick={() => handleStatusUpdate(status)}
+            disabled={selectedRequest?.status === status}
+          >
+            <Chip
+              label={requestStatusLabels[status]}
+              size="small"
+              color={getStatusColor(status)}
+              sx={{ mr: 1 }}
+            />
+          </MenuItem>
+        ))}
+      </Menu>
+
+      <Snackbar
+        open={!!error}
+        autoHideDuration={4000}
+        onClose={() => setError(null)}
+      >
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

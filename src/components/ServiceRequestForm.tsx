@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Alert,
@@ -15,13 +14,14 @@ import {
   Typography,
 } from "@mui/material";
 import { cnpj, cpf } from "cpf-cnpj-validator";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { DocumentInput } from "./DocumentInput";
+import { serviceTypeLabels } from "../constants/serviceRequestLabels";
 import { api } from "../services/api";
 import { RequestStatus, ServiceType } from "../types/service-request";
-import { serviceTypeLabels } from "../constants/serviceRequestLabels";
-import { useNavigate } from "react-router-dom";
+import { DocumentInput } from "./DocumentInput";
 
 const schema = z.object({
   type: z.nativeEnum(ServiceType, {

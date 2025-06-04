@@ -1,5 +1,5 @@
-import React from "react";
-import { IMaskInput } from "react-imask";
+import BusinessIcon from "@mui/icons-material/Business";
+import PersonIcon from "@mui/icons-material/Person";
 import {
   Box,
   FormControl,
@@ -8,8 +8,8 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
-import BusinessIcon from "@mui/icons-material/Business";
+import React from "react";
+import { IMaskInput } from "react-imask";
 
 interface DocumentInputProps {
   onChange: (event: { target: { name: string; value: string } }) => void;
@@ -77,7 +77,7 @@ export const DocumentInput = React.forwardRef<
             name,
             value,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onAccept: (value: string, mask: any) => {
+            onAccept: (_value: string, mask: any) => {
               onChange({
                 target: {
                   name,
