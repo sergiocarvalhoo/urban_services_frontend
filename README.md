@@ -1,54 +1,150 @@
-# React + TypeScript + Vite
+# Urban Services Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React application for managing urban service requests using Material-UI, React Hook Form, and Vite.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node.js >= 20
+- Docker and Docker Compose (for containerized setup)
+- Backend service running (see backend README)
 
-## Expanding the ESLint configuration
+## Environment Setup
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Copy the example environment file and adjust the values:
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+cp .env.example .env
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The main environment variable is:
+- `VITE_API_URL`: Backend API URL (default: http://localhost:3000)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Running Locally (Without Docker)
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+1. Install dependencies:
+```bash
+npm install
 ```
+
+2. Start the development server:
+```bash
+npm run dev
+```
+
+The application will be available at http://localhost:80
+
+## Running with Docker
+
+1. Build and start the container:
+```bash
+npm run docker:up
+# or
+docker-compose up -d
+```
+
+2. View logs:
+```bash
+npm run docker:logs
+# or
+docker-compose logs -f
+```
+
+3. Stop container:
+```bash
+npm run docker:down
+# or
+docker-compose down
+```
+
+The application will be available at http://localhost:80
+
+## Available Scripts
+
+```bash
+# development
+npm run dev
+
+# production build
+npm run build
+npm run preview
+
+# linting
+npm run lint
+
+# docker commands
+npm run docker:build  # build image
+npm run docker:up     # start container
+npm run docker:down   # stop container
+npm run docker:logs   # view logs
+```
+
+## Project Structure
+
+```
+src/
+├── components/       # Reusable UI components
+├── contexts/        # React contexts
+├── pages/           # Application pages/routes
+├── services/        # API services
+├── types/           # TypeScript type definitions
+├── constants/       # Constants and labels
+└── theme/          # Material-UI theme configuration
+```
+
+## Features
+
+- Service request creation form
+- Service request list with filtering
+- Admin authentication
+- Status management for requests
+- Responsive design
+- Form validation
+- Error handling
+- Loading states
+- Material-UI components
+- Docker support
+- Environment configuration
+
+## Tech Stack
+
+- React 19
+- TypeScript
+- Material-UI
+- React Hook Form
+- Axios
+- React Router
+- Zod
+- Vite
+- Docker
+- Nginx
+
+## Development Features
+
+- Hot Module Replacement (HMR)
+- ESLint configuration
+- TypeScript strict mode
+- Environment variables
+- Docker development setup
+- Nginx production setup
+
+## Production Build
+
+The production build:
+1. Uses multi-stage Docker build
+2. Implements Nginx for static file serving
+3. Includes health checks
+4. Configures CORS headers
+5. Enables security headers
+6. Handles SPA routing
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
