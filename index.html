@@ -1,11 +1,68 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Serviços Urbanos</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="apple-touch-icon"
+      type="image/svg+xml"
+      href="/apple-touch-icon.svg"
+    />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Metatags principais -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0"
+    />
+    <meta name="theme-color" content="#1976d2" />
+
+    <!-- Fontes do Material-UI -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap"
+    />
+
+    <!-- Ícones do Material-UI -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+
+    <title>Serviços Urbanos | Sistema de Solicitações</title>
+
+    <!-- Estilos base -->
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Roboto", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      #root {
+        min-height: 100vh;
+      }
+
+      .noscript-message {
+        padding: 20px;
+        text-align: center;
+        background: #f8d7da;
+        color: #721c24;
+        margin: 20px;
+        border-radius: 4px;
+      }
+    </style>
   </head>
   <body>
+    <noscript>
+      <div class="noscript-message">
+        Para utilizar este sistema, por favor habilite o JavaScript no seu
+        navegador.
+      </div>
+    </noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
