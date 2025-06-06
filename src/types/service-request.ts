@@ -24,3 +24,8 @@ export interface ServiceRequest {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ServiceRequestFilters {
+  type?: ServiceType;
+  status?: RequestStatus;
+}
