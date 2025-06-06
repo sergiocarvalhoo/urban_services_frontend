@@ -1,6 +1,13 @@
 import LockIcon from "@mui/icons-material/Lock";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { AppBar, Button, Container, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Button,
+  Container,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import { useState } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import { LoginDialog } from "./components/LoginDialog";
@@ -15,56 +22,67 @@ function AppContent() {
 
   return (
     <BrowserRouter>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Serviços Urbanos
-          </Typography>
-          <Button color="inherit" component={Link} to="/">
-            Início
-          </Button>
-          <Button color="inherit" component={Link} to="/list">
-            Listar Solicitações
-          </Button>
-          <Button color="inherit" component={Link} to="/create">
-            Criar Solicitação
-          </Button>
-
-          {/* Botões de autenticação */}
-          {!isAuthenticated ? (
-            <Button
-              color="inherit"
-              onClick={() => setLoginDialog(true)}
-              startIcon={<LockIcon />}
-              sx={{ ml: 2 }}
-            >
-              Login
+      <Box
+        sx={{
+          margin: 0,
+          minHeight: "100vh",
+          bgcolor: "background.default",
+          paddingTop: "64px",
+        }}
+      >
+        <AppBar
+          position="fixed"
+          sx={{
+            width: "100%",
+            zIndex: (theme) => theme.zIndex.drawer + 1,
+          }}
+        >
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Serviços Urbanos
+            </Typography>
+            <Button color="inherit" component={Link} to="/">
+              Início
             </Button>
-          ) : (
-            <Button
-              color="inherit"
-              onClick={logout}
-              startIcon={<LogoutIcon />}
-              sx={{ ml: 2 }}
-            >
-              Sair
+            <Button color="inherit" component={Link} to="/list">
+              Listar Solicitações
             </Button>
-          )}
-        </Toolbar>
-      </AppBar>
+            <Button color="inherit" component={Link} to="/create">
+              Criar Solicitação
+            </Button>
 
-      <Container sx={{ mt: 4 }}>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/list" element={<ServiceRequestListPage />} />
-          <Route path="/create" element={<CreateServiceRequest />} />
-        </Routes>
-      </Container>
+            {!isAuthenticated ? (
+              <Button
+                color="inherit"
+                onClick={() => setLoginDialog(true)}
+                startIcon={<LockIcon />}
+                sx={{ ml: 2 }}
+              >
+                Login
+              </Button>
+            ) : (
+              <Button
+                color="inherit"
+                onClick={logout}
+                startIcon={<LogoutIcon />}
+                sx={{ ml: 2 }}
+              >
+                Sair
+              </Button>
+            )}
+          </Toolbar>
+        </AppBar>
 
-      <LoginDialog
-        open={loginDialog}
-        onClose={() => setLoginDialog(false)}
-      />
+        <Container>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/list" element={<ServiceRequestListPage />} />
+            <Route path="/create" element={<CreateServiceRequest />} />
+          </Routes>
+        </Container>
+
+        <LoginDialog open={loginDialog} onClose={() => setLoginDialog(false)} />
+      </Box>
     </BrowserRouter>
   );
 }
