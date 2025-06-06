@@ -34,6 +34,21 @@ import {
   ServiceType,
   type ServiceRequest,
 } from "../types/service-request";
+import { cpf, cnpj } from "cpf-cnpj-validator";
+
+function formatDocument(doc: string): string {
+  // Remove caracteres não numéricos
+  const numbers = doc.replace(/\D/g, "");
+
+  // Verifica se é CPF (11 dígitos) ou CNPJ (14 dígitos)
+  if (numbers.length === 11) {
+    return cpf.format(numbers);
+  } else if (numbers.length === 14) {
+    return cnpj.format(numbers);
+  }
+
+  return doc; // Retorna original se não for CPF nem CNPJ
+}
 
 export function ServiceRequestList() {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
@@ -74,7 +89,6 @@ export function ServiceRequestList() {
       await fetchRequests();
       setStatusMenu(null);
       setSelectedRequest(null);
-       
     } catch (err) {
       setError("Erro ao atualizar status");
     }
@@ -141,7 +155,7 @@ export function ServiceRequestList() {
                 </Typography>
                 <Typography variant="body2">Endereço: {req.address}</Typography>
                 <Typography variant="body2">
-                  Documento: {req.document}
+                  Documento: {formatDocument(req.document)}
                 </Typography>
                 <Box
                   sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}
