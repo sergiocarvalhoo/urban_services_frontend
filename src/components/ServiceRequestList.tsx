@@ -1,10 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
   Alert,
   Box,
+  Button,
   Card,
   CardContent,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   IconButton,
   InputLabel,
@@ -22,7 +29,11 @@ import {
 } from "../constants/serviceRequestLabels";
 import { useAuth } from "../contexts/AuthContext";
 import { api } from "../services/api";
-import { RequestStatus, ServiceType, type ServiceRequest } from "../types/service-request";
+import {
+  RequestStatus,
+  ServiceType,
+  type ServiceRequest,
+} from "../types/service-request";
 
 export function ServiceRequestList() {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
@@ -33,6 +44,8 @@ export function ServiceRequestList() {
     null
   );
   const [statusMenu, setStatusMenu] = useState<null | HTMLElement>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const fetchRequests = async () => {
     try {
@@ -61,9 +74,21 @@ export function ServiceRequestList() {
       await fetchRequests();
       setStatusMenu(null);
       setSelectedRequest(null);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
     } catch (err) {
       setError("Erro ao atualizar status");
+    }
+  };
+
+  // Função para deletar solicitação
+  const handleDelete = async (id: number) => {
+    try {
+      await api.delete(`/service-requests/${id}`);
+      await fetchRequests();
+      setDeleteConfirm(null);
+      setSuccess("Solicitação excluída com sucesso!");
+    } catch (err) {
+      setError("Erro ao excluir solicitação");
     }
   };
 
@@ -126,15 +151,26 @@ export function ServiceRequestList() {
                     color={getStatusColor(req.status)}
                   />
                   {isAuthenticated && (
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        setSelectedRequest(req);
-                        setStatusMenu(e.currentTarget);
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
+                    <>
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          setSelectedRequest(req);
+                          setStatusMenu(e.currentTarget);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      {req.status === RequestStatus.PENDING && (
+                        <IconButton
+                          size="small"
+                          onClick={() => setDeleteConfirm(req.id)}
+                          aria-label="delete"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      )}
+                    </>
                   )}
                 </Box>
               </Box>
@@ -142,6 +178,28 @@ export function ServiceRequestList() {
           </Card>
         ))}
       </Stack>
+
+      {/* Dialog de confirmação de exclusão */}
+      <Dialog
+        open={deleteConfirm !== null}
+        onClose={() => setDeleteConfirm(null)}
+      >
+        <DialogTitle>Confirmar Exclusão</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Tem certeza que deseja excluir esta solicitação?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
+          <Button
+            color="error"
+            onClick={() => deleteConfirm && handleDelete(deleteConfirm)}
+          >
+            Excluir
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Menu
         anchorEl={statusMenu}
@@ -174,6 +232,18 @@ export function ServiceRequestList() {
       >
         <Alert severity="error" onClose={() => setError(null)}>
           {error}
+        </Alert>
+      </Snackbar>
+
+      {/* Adicionar antes do último Snackbar */}
+      <Snackbar
+        open={!!success}
+        autoHideDuration={4000}
+        onClose={() => setSuccess(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert severity="success" onClose={() => setSuccess(null)}>
+          {success}
         </Alert>
       </Snackbar>
     </Box>
