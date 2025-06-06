@@ -1,11 +1,10 @@
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   TextField,
-  Alert,
 } from "@mui/material";
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
@@ -19,7 +18,6 @@ export function LoginDialog({ open, onClose }: LoginDialogProps) {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async () => {
     try {
@@ -27,9 +25,8 @@ export function LoginDialog({ open, onClose }: LoginDialogProps) {
       setEmail("");
       setPassword("");
       onClose();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      setError("Email ou senha inválidos");
+      console.error(err);
     }
   };
 
@@ -37,11 +34,6 @@ export function LoginDialog({ open, onClose }: LoginDialogProps) {
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Login Administrativo</DialogTitle>
       <DialogContent>
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
         <TextField
           autoFocus
           margin="dense"

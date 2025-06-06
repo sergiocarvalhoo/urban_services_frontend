@@ -1,3 +1,4 @@
+import { Alert, Snackbar } from "@mui/material";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { api } from "../services/api";
 
@@ -18,6 +19,10 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [message, setMessage] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -41,9 +46,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       api.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
       setUser(user);
       setIsAuthenticated(true);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      setMessage({ text: "Login realizado com sucesso!", type: "success" });
     } catch (error) {
-      throw new Error("Falha na autenticação");
+      setMessage({ text: "Falha na autenticação", type: "error" });
+      throw error;
     }
   };
 
@@ -53,11 +59,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     delete api.defaults.headers.common["Authorization"];
     setUser(null);
     setIsAuthenticated(false);
+    setMessage({ text: "Logout realizado com sucesso!", type: "success" });
   };
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
       {children}
+      <Snackbar
+        open={!!message}
+        autoHideDuration={4000}
+        onClose={() => setMessage(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setMessage(null)}
+          severity={message?.type || "info"}
+        >
+          {message?.text}
+        </Alert>
+      </Snackbar>
     </AuthContext.Provider>
   );
 }
